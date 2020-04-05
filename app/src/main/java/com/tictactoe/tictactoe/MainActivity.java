@@ -2,12 +2,17 @@ package com.tictactoe.tictactoe;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import androidx.appcompat.app.AppCompatActivity;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -22,6 +27,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView textViewPlayer1;
     private TextView textViewPlayer2;
+
+    @Override public void onStart() {
+        super.onStart();
+        Branch branch = Branch.getInstance(getApplicationContext());
+        branch.initSession(new Branch.BranchReferralInitListener() {
+            @Override
+            public void onInitFinished(JSONObject referringParams, BranchError error) {
+                if (error == null){
+                    Log.i("BranchConfigTest","deep link data: " + referringParams);
+                }
+            }
+        },this.getIntent().getData(), this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Branch.getInstance(getApplicationContext()).closeSession();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
